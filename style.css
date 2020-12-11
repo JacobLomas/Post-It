@@ -1,0 +1,98 @@
+#button {
+    padding: 0;
+    display: flex;
+    background-color: #2175bc;
+}
+#button li {
+    display: inline;
+}
+#button li a {
+    font-family: Arial;
+    font-size: 21px;
+    text-decoration: none;
+    float: left;
+    padding: 50px;
+    background-color: #2175bc;
+    color: #fff;
+}
+#button li a:hover {
+        background-color: #2586d7;
+        margin-top: -2;
+        padding-bottom: 52px;
+}
+.divListaNotas{
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-flow: row wrap;
+    background-image: url("./images/background.png");
+}
+.nota{
+    display: flex;
+    flex-flow:column wrap ;
+    margin-left: 20px;
+    margin-top: 20px;
+    max-width: 30%;
+    min-width: 350px;
+    padding: 10px;
+    background-color: rgb(251, 249, 122);
+}
+button{
+    align-self: flex-end;
+    width: 50%;
+} 
+input[type="color"]{
+    width: 40%;
+    margin-right: 20px;
+
+}
+p{
+    max-height: 16vh;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Langar&display=swap');
+/* font-family: 'Langar', cursive; */
+.estiloMolon{
+    font-family: 'Langar', cursive;
+    border: groove 2px #78dbb5da;
+    text-shadow: 0 0 3px rgb(119, 185, 158), 0 0 5px rgb(6, 49, 30);
+    border-radius: 10%;
+    box-shadow: 10px 15px 30px rgb(119, 185, 158);
+    background-color: #77b99da4;
+    /* opacity: 0.527; */
+}
+.estiloMolon .nota-header{
+    border-radius: 10%;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.estiloMolon button,.estiloMolon input{
+    background-color: white;
+    color: black;
+    border: 2px solid #555555;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+.estiloMolon button:hover, .estiloMolon input:hover{
+    background-color: #555555;
+    color: white;
+}
+.estiloMolon input{
+    padding: 0%;
+    margin-right: 10px;
+}
+.estiloMolon h1:first-letter {
+    font-size: 200%;
+    color: rgb(119, 185, 158);
+    font-weight: bold;
+}
