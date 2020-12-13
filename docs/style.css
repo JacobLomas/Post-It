@@ -26,6 +26,7 @@
     display: flex;
     flex-flow: row wrap;
     background-image: url("./images/background.png");
+    background-repeat: repeat;
 }
 .nota{
     display: flex;

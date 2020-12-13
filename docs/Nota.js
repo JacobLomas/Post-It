@@ -138,9 +138,8 @@ export class Controlador{
         window.addEventListener("mousemove", (e)=>{
             try{
                 if (window.imagenEnMovimiento.arrastrando) {
-                    let offsety=50+document.getElementsByClassName("divListaNotas")[0].getBoundingClientRect().y;
-                    window.imagenEnMovimiento.style.left = (e.x - 60) + "px";
-                    window.imagenEnMovimiento.style.top = (e.y - offsety) + "px";
+                    window.imagenEnMovimiento.style.left = (e.x - 50) + "px";
+                    window.imagenEnMovimiento.style.top = (e.y - 40) + "px";
                 }
             }catch{};
         } );        
@@ -302,24 +301,6 @@ export class Controlador{
                 ol.appendChild(li);/* 
                 filasli.push(li); */
                 var textArea=this.vista.crearTextAreaEdicion(e.target.textContent);
-                /*textArea.style.display="list-item";
-                li.style.display="none";
-                li.parentNode.insertBefore(textArea, li.parentNode.getElementsByTagName("h4")[0]);
-                textArea.focus();
-                textArea.addEventListener("focusout", (e)=>{
-                    li.innerText=e.target.value;
-                    li.style.display="list-item";
-                    e.target.style.display="none";
-                     
-                    
-                    //Actualizar localStorage y la nota
-                    let id=e.target.parentNode.parentNode.id;
-                    this.arrayNotas.forEach((nota)=>{
-                        if(nota.id=id)
-                            nota.descripcion+=";"+li.textContent;
-                    })
-                    this.actualizarLocalStorage();
-                }); */
                 li.addEventListener("dblclick", (e)=>{
                     textArea.style.display="list-item";
                     e.target.style.display="none";
@@ -369,13 +350,7 @@ export class Controlador{
 function target(e=window.event){
     var e=e;
     e.target.parentNode.arrastrando = !e.target.parentNode.arrastrando;    
-    e.target.parentNode.style.position="relative";
+    e.target.parentNode.style.position="absolute";
     window.imagenEnMovimiento = e.target.parentNode;
-    if(parseInt(window.imagenEnMovimiento.style.top.split("p")[0])<2){
-        window.imagenEnMovimiento.style.top="0px"
-    }
-    if(parseInt(window.imagenEnMovimiento.style.left.split("p")[0])<2)
-        window.imagenEnMovimiento.style.left="0px"
-    if(parseInt(window.imagenEnMovimiento.style.left.split("p")[0])>e.target.parentNode.parentNode.offsetWidth-window.imagenEnMovimiento.getBoundingClientRect().width)
-        window.imagenEnMovimiento.style.left="0px";
+
  }
