@@ -199,8 +199,11 @@ export class Controlador{
 
         //Input de cambiar el color;
         elementos.color.addEventListener("change", (e)=>{
-            e.target.parentNode.parentNode.style.backgroundColor=e.target.value+"a4";
-            e.target.parentNode.parentNode.style.boxShadow="10px 15px 30px "+e.target.value+"a4";
+            if(e.target.parentNode.parentNode.className=="nota estiloMolon"){
+                e.target.parentNode.parentNode.style.backgroundColor=e.target.value+"a4";
+                e.target.parentNode.parentNode.style.boxShadow="10px 15px 30px "+e.target.value+"a4";
+            }else
+                e.target.parentNode.parentNode.style.backgroundColor=e.target.value
         })
         
         //Actualizar el titulo
