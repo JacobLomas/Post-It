@@ -5,7 +5,7 @@ export class Nota{
         this.descripcion=descripcion;
         var marcaTiempo=new Date()
         this.fecha=marcaTiempo.toDateString()+" "+marcaTiempo.toLocaleTimeString();
-        this.id=marcaTiempo.getTime().toString(); //Me sirve como identificador único de cada nota
+        this.id=uuid.v4();/* Libreria para generar identificadores unicos */
         this.vista=vista;
         this.haceCuanto="Hace 0 minutos";
     }
