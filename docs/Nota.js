@@ -1,6 +1,6 @@
 //Modelo
 export class Nota{
-    constructor(vista="normal",titulo="Titulo", descripcion="" ){
+    constructor(vista="normal" ,titulo="Titulo", descripcion="" ){
         this.titulo=titulo;
         this.descripcion=descripcion;
         var marcaTiempo=new Date()
@@ -12,30 +12,89 @@ export class Nota{
 }
 //Vista
 export class NotaVista{
-    constructor(div=document.createElement("div")){
+    constructor( controlador, div){
+        this.controlador=controlador;
         this.divListaNotas=div;
         this.divListaNotas.className="divListaNotas";
         document.body.appendChild(this.divListaNotas);
     }
-
-    maquetarNota(nota, vista="normal"){
+    initDiv(id){
         let divNota=document.createElement("div");
-        divNota.id=nota.id.toString();
+        divNota.id=id;
         divNota.className="nota";
-        var asigEventos;
+        return divNota;
+    }
+    initTitulo(tit){
         let titulo=document.createElement("h1");
-        titulo.innerText=nota.titulo;
-        let fecha=document.createElement("h4");
-        fecha.innerText=nota.fecha;
+        titulo.innerText=tit;
+        titulo.contentEditable="true";
+        titulo.addEventListener("focusout", (e)=>{
+                this.controlador.actualizarTitulo(titulo.parentNode.id,titulo.innerText);
+        });
+        return titulo;
+    }
+    initFecha(fecha){
+        let date=document.createElement("h4");
+        date.innerText=fecha;
+        return date;
+    }
+    initHaceCuanto(fecha){
         let haceCuanto=document.createElement("h6");
-        haceCuanto.innerText=nota.haceCuanto;
-        let divBotones=document.createElement("div");
+        haceCuanto.innerText=fecha;
+        return haceCuanto;
+    }
+    initDivBotones(){
+        return document.createElement("div");
+    }
+    initBotonBorrar(){
         let btnBorrar=document.createElement("button");
         btnBorrar.innerText="Borrar";
         btnBorrar.className=".borrar";
+        btnBorrar.addEventListener("click", (e)=>{
+            this.controlador.eliminarNota(parseInt(e.target.parentNode.parentNode.id));
+            this.eliminarNotaVista(e.target.parentNode.parentNode.id);
+        });
+        return btnBorrar;
+    }
+    initColorInput(){
         let color=document.createElement("input");
         color.type="color";
         color.value="#fbf97a";
+        color.addEventListener("change", (e)=>{
+            if(e.target.parentNode.parentNode.className=="nota estiloMolon"){
+                e.target.parentNode.parentNode.style.backgroundColor=e.target.value+"a4";
+                e.target.parentNode.parentNode.style.boxShadow="10px 15px 30px "+e.target.value+"a4";
+            }else
+                e.target.parentNode.parentNode.style.backgroundColor=e.target.value
+        });
+        return color;
+    }
+    initDivDrag(){
+        let divDrag=document.createElement("div");
+        divDrag.style.cssText="padding: 20px;  cursor: move; background-color: #2196F3; color: #fff;";
+        divDrag.className="nota-header";
+        return divDrag;
+    }
+    initDescripcion(des){
+        let descripcion=document.createElement("p");
+        descripcion.innerText=des;
+        descripcion.contentEditable="true";
+        descripcion.addEventListener("focusout", (e)=>{
+                descripcion.contentEditable="false";
+                this.controlador.actualizarDescripcion(descripcion.parentNode.id,descripcion.innerText);
+            
+        });
+        return descripcion;
+    }
+
+    maquetarNota(tit, date, haceCuant, id, des){
+        let divNota=this.initDiv(id.toString());
+        let titulo=this.initTitulo(tit);
+        let fecha=this.initFecha(date);
+        let haceCuanto=this.initHaceCuanto(haceCuant);
+        let divBotones=this.initDivBotones();
+        let btnBorrar=this.initBotonBorrar();
+        let color=this.initColorInput();
         divBotones.appendChild(color);
         divBotones.appendChild(btnBorrar);
         divNota.appendChild(titulo);
@@ -43,68 +102,20 @@ export class NotaVista{
         divNota.appendChild(fecha);
         divNota.appendChild(haceCuanto);
         divNota.appendChild(divBotones);
-        let divDrag=document.createElement("div");
-            divDrag.style.cssText="padding: 20px;  cursor: move; background-color: #2196F3; color: #fff;";
-            divDrag.className="nota-header";
+        let divDrag=this.initDivDrag();
         divNota.prepend(divDrag);
         this.divListaNotas.appendChild(divNota);
+        let descripcion=this.initDescripcion(des)
+        divNota.insertBefore(descripcion, fecha);
 
-        if(vista=="normal"){
-            let descripcion=document.createElement("p");
-            descripcion.innerText=nota.descripcion;
-            asigEventos={
-                borrar:btnBorrar,
-                titulo:titulo,
-                descripcion:descripcion,
-                divDrag,
-                color
-            };
-            divNota.insertBefore(descripcion, fecha);
-        }
-        if(vista=="toDoList"){
-            divNota.classList="nota estiloMolon";
-            color.value="#77b99d";
-            var arrayLista;
-            if(nota.descripcion!=""){
-                arrayLista=nota.descripcion.split(";");
-                arrayLista.pop();
-            }
-            else
-                arrayLista=nota.descripcion;
-           
-            var ol=document.createElement("ol");
-            try{
-                if(!arrayLista.length<=0){
-                arrayLista.forEach(element => {
-                    let li=document.createElement("li");
-                    li.innerText=element;
-                    ol.appendChild(li);
-                });
-                }
-            }catch{}
-            let btnAddLi=document.createElement("button");
-            btnAddLi.innerText="+";
-            divNota.insertBefore(btnAddLi, fecha);
-
-            divNota.insertBefore(ol, btnAddLi);
-            asigEventos={
-                borrar:btnBorrar,
-                titulo:titulo,
-                lista:ol,
-                divDrag,
-                color,
-                btnAddLi
-            };
-        }
-        return asigEventos;
     };
 
 
-    eliminarNotaVista(nota){
+    eliminarNotaVista(id){
         let divNotas=this.divListaNotas.getElementsByClassName("nota");
         divNotas= Array.from(divNotas);
         divNotas.forEach((divNota)=>{
-            if(divNota.id==nota.id)
+            if(divNota.id==id)
                 this.divListaNotas.removeChild(divNota);
         })
     }
@@ -127,19 +138,120 @@ export class NotaVista{
     }
 }
 
+class NotaVistaLista extends NotaVista{
+    constructor(controlador, div=document.createElement("div")){
+        super(controlador, div);
+    }
+    initDiv(id){
+        let div=super.initDiv(id);
+        div.classList="nota estiloMolon";
+        return div;
+    }
+    initColorInput(){
+        let color=super.initColorInput()
+        color.value="#77b99d";
+        return color;
+    }
+    initOl(){
+        return document.createElement("ol");
+    }
+    initBotonAñadir(){
+        let btn =document.createElement("button");
+        btn.innerText="+";
+        btn.addEventListener("click", (e)=>{
+            let li = document.createElement("li");
+            li.innerText="Clic me (else dont save)";
+            let ol=e.target.parentNode.querySelector("ol");
+            ol.appendChild(li);
+            li.contentEditable="true";
+            li.addEventListener("focusout", (e)=>{
+                let liS = Array.from(e.target.parentNode.getElementsByTagName("li"));
+                let textoDescripcion="";
+                liS.forEach((li)=>{
+                    textoDescripcion+=li.innerText+";";
+                });
+                this.controlador.actualizarDescripcion(e.target.parentNode.parentNode.id, textoDescripcion);
+            })
+        })
+        return btn;
+    }
+    initLi(element){
+        let li = document.createElement("li");
+        li.innerText=element;
+        li.contentEditable="true";
+        li.addEventListener("focusout", (e)=>{
+            let liS = Array.from(e.target.parentNode.getElementsByTagName("li"));
+                let textoDescripcion="";
+                liS.forEach((li)=>{
+                    textoDescripcion+=li.innerText+";";
+                });
+                this.controlador.actualizarDescripcion(e.target.parentNode.parentNode.id, textoDescripcion);
+
+        })
+        return li;
+
+    }
+    maquetarNota(tit, date, haceCuant, id, des){
+        let divNota=this.initDiv(id.toString());
+        let titulo=super.initTitulo(tit);
+        let fecha=super.initFecha(date);
+        let haceCuanto=super.initHaceCuanto(haceCuant);
+        let divBotones=super.initDivBotones();
+        let btnBorrar=super.initBotonBorrar();
+        let color=this.initColorInput();
+        let divDrag=this.initDivDrag();
+        divBotones.appendChild(color);
+        divBotones.appendChild(btnBorrar);
+        divNota.appendChild(titulo);
+        divNota.appendChild(fecha);
+        divNota.appendChild(haceCuanto);
+        divNota.appendChild(divBotones);
+        divNota.prepend(divDrag);
+        this.divListaNotas.appendChild(divNota);
+
+        /* Formateo el array, separandolo por ; esto me servira para sacar los elementos de la lista */
+        var arrayLista;
+        if(des!=""){
+            arrayLista=des.split(";");
+            arrayLista.pop();
+        }
+        else
+            arrayLista=des;
+        
+
+
+        /* Una vez formateado, se generan los li correspondientes y se addieren al ol */
+        let ol=this.initOl();
+        try{
+            if(!arrayLista.length<=0){
+            arrayLista.forEach(element => {
+                let li=this.initLi(element);
+                ol.appendChild(li);
+            });
+            }
+        }catch{}
+
+
+        let btnAddLi=this.initBotonAñadir();
+        divNota.insertBefore(btnAddLi, fecha);
+        divNota.insertBefore(ol, btnAddLi);
+    };
+
+}
 
 
 //Controlador
 export class Controlador{
-    constructor(vista=new NotaVista()){
+    constructor(div=document.createElement("div")){
         this.arrayNotas=[];
-        this.vista=vista;
+        this.vista=new NotaVista(this, div);
+        this.vistaLista=new NotaVistaLista(this, div);
         this.recogerLocalSorage();
         window.addEventListener("mousemove", (e)=>{
             try{
-                if (window.imagenEnMovimiento.arrastrando) {
-                    window.imagenEnMovimiento.style.left = (e.x - 50) + "px";
-                    window.imagenEnMovimiento.style.top = (e.y - 40) + "px";
+                if (imagenEnMovimiento.arrastrando) {
+                    imagenEnMovimiento.style.left = (e.pageX - 50) + "px";
+                    imagenEnMovimiento.style.top = (e.pageY - 40) + "px";
                 }
             }catch{};
         } );        
@@ -150,22 +262,29 @@ export class Controlador{
         if(localStorage.getItem("notas")){
             this.arrayNotas=JSON.parse(localStorage.getItem("notas"));
             this.arrayNotas.forEach((nota)=>{
-                let elementos=this.vista.maquetarNota(nota, nota.vista);
-                this.añadirEventListeners(elementos);
+                if(nota.vista=="normal")
+                    this.vista.maquetarNota(nota.titulo, nota.fecha, nota.haceCuant, nota.id, nota.descripcion);
+                if(nota.vista=="toDoList")
+                    this.vistaLista.maquetarNota(nota.titulo, nota.fecha, nota.haceCuant, nota.id, nota.descripcion);
+
             })
+            this.moverNotas();
         }
 
     }
 
     nuevaNota(vista="normal",titulo="Titulo", descripcion ){
-        var nota = new Nota(vista,titulo, descripcion);
+        var nota = new Nota(vista, titulo, descripcion);
         this.arrayNotas.push(nota);
         localStorage.setItem("notas", JSON.stringify(this.arrayNotas));
-        
+        if(vista=="normal")
+            this.vista.maquetarNota(nota.titulo, nota.fecha, nota.haceCuant, nota.id, nota.descripcion);
+        if(vista=="toDoList")
+            this.vistaLista.maquetarNota(nota.titulo, nota.fecha, nota.haceCuant, nota.id, nota.descripcion);
 
-        //Recogo los elementos de la maquetacion y añado los eventos a dichos botones
-        let elementos=this.vista.maquetarNota(nota, vista);
-        this.añadirEventListeners(elementos);
+        //Recogo los elementos de la maquetacion y añado los eventos a dichos botones 
+        this.quitarEventListeners();
+        this.moverNotas();
         return nota;
         
     };
@@ -174,7 +293,6 @@ export class Controlador{
         this.arrayNotas.forEach((nota,index)=>{
             if(nota.id==id){
                 this.arrayNotas.splice(index, 1);
-                this.vista.eliminarNotaVista(nota)
                 this.actualizarLocalStorage();
                 return true;
             }else
@@ -182,155 +300,24 @@ export class Controlador{
         });
     };
 
+    actualizarTitulo(id,titulo){
+            this.arrayNotas.forEach((nota)=>{
+                if(nota.id=id)
+                    nota.titulo=titulo;
+            })
+            this.actualizarLocalStorage();
+    }
+
+    actualizarDescripcion(id, descripcion){
+        this.arrayNotas.forEach((nota)=>{
+            if(nota.id=id)
+                nota.descripcion=descripcion; 
+        })
+        this.actualizarLocalStorage();
+    }
+
     actualizarLocalStorage(){
         localStorage.setItem("notas", JSON.stringify(this.arrayNotas));
-    }
-    añadirEventListeners(elementos){
-        //Mover Notas
-        //Quito los evento que se esten ejecutando
-        this.quitarEventListeners();
-        //Vuelvo a añadir los eventListener a todas las notas
-        this.moverNotas();
-
-        //Boton borrar
-        elementos.borrar.addEventListener("click", (e)=>{
-            this.eliminarNota(parseInt(e.target.parentNode.parentNode.id));
-        });       
-
-        //Input de cambiar el color;
-        elementos.color.addEventListener("change", (e)=>{
-            if(e.target.parentNode.parentNode.className=="nota estiloMolon"){
-                e.target.parentNode.parentNode.style.backgroundColor=e.target.value+"a4";
-                e.target.parentNode.parentNode.style.boxShadow="10px 15px 30px "+e.target.value+"a4";
-            }else
-                e.target.parentNode.parentNode.style.backgroundColor=e.target.value
-        })
-        
-        //Actualizar el titulo
-        elementos.titulo.addEventListener("dblclick", (e)=>{
-            let textArea=this.vista.crearTextAreaEdicion(e.target.textContent);
-            e.target.style.display="none";
-            e.target.parentNode.insertBefore(textArea, e.target.parentNode.getElementsByTagName("p")[0]);
-            textArea.focus();
-            textArea.addEventListener("focusout", (e)=>{
-                let titulo=e.target.parentNode.getElementsByTagName("h1")[0];
-                titulo.innerText=e.target.value;
-                titulo.style.display="block";
-                e.target.style.display="none";
-
-
-                //Con el id, actualizamos la informacion de la nota que se encuentra en el array de notas
-                let id=e.target.parentNode.id;
-                this.arrayNotas.forEach((nota)=>{
-                    if(nota.id=id)
-                        nota.titulo=e.target.value;
-                })
-                this.actualizarLocalStorage();
-                
-            })
-            
-        })
-        
-
-        //Actualizar la descripcion
-        if(elementos.descripcion){
-            elementos.descripcion.addEventListener("dblclick", (e)=>{
-                let textArea=this.vista.crearTextAreaEdicion(e.target.textContent);
-                e.target.style.display="none";
-                e.target.parentNode.insertBefore(textArea, e.target.parentNode.getElementsByTagName("h4")[0]);
-                textArea.focus();
-                textArea.addEventListener("focusout", (e)=>{
-                    let descripcion=e.target.parentNode.getElementsByTagName("p")[0];
-                    descripcion.innerText=e.target.value;
-                    descripcion.style.display="block";
-                    e.target.style.display="none";
-
-
-                    //Con el id, actualizamos la informacion de la nota que se encuentra en el array de notas
-                    let id=e.target.parentNode.id;
-                    this.arrayNotas.forEach((nota)=>{
-                        if(nota.id=id)
-                            nota.descripcion=e.target.value;
-                    })
-                    this.actualizarLocalStorage();
-                })
-                
-                
-            })
-        }
-
-        //Actualizar lista
-        if(elementos.lista){
-            var filasli=Array.from(elementos.lista.getElementsByTagName("li"));
-            filasli.forEach((li, index)=>{
-                li.addEventListener("dblclick", (e)=>{
-                    let textArea=this.vista.crearTextAreaEdicion(e.target.textContent);
-                    textArea.style.display="list-item";
-                    e.target.style.display="none";
-                    if(index==filasli.length-1)
-                        e.target.parentNode.insertBefore(textArea, e.target.parentNode.getElementsByTagName("h4")[0]);
-                    else
-                        e.target.parentNode.insertBefore(textArea, filasli[index]);
-                    textArea.focus();
-                    textArea.addEventListener("focusout", (e)=>{
-                        li.innerText=e.target.value;
-                        li.style.display="list-item";
-                        e.target.style.display="none";
-
-                        //Actualizar localStorage y la nota
-                        let id=e.target.parentNode.parentNode.id;
-                        let liS = Array.from(e.target.parentNode.getElementsByTagName("li"));
-                        let textoDescripcion="";
-                        liS.forEach((li)=>{
-                            textoDescripcion+=li.innerText+";";
-                        })
-                        this.arrayNotas.forEach((nota)=>{
-                            if(nota.id==id)
-                                nota.descripcion=textoDescripcion;
-                        })
-                        this.actualizarLocalStorage();
-                    });
-                })
-            })
-        }
-
-        //Añadir elementos a la lista
-        if(elementos.btnAddLi && elementos.lista){
-            var filasli=Array.from(elementos.lista.getElementsByTagName("li"));
-            elementos.btnAddLi.addEventListener("click", (e)=>{
-                let li = document.createElement("li");
-                li.innerText="To-Do";
-                let ol=e.target.parentNode.querySelector("ol");
-                ol.appendChild(li);/* 
-                filasli.push(li); */
-                var textArea=this.vista.crearTextAreaEdicion(e.target.textContent);
-                li.addEventListener("dblclick", (e)=>{
-                    textArea.style.display="list-item";
-                    e.target.style.display="none";
-                    e.target.parentNode.insertBefore(textArea, e.target.parentNode.getElementsByTagName("h4")[0]);
-                    textArea.focus();
-                    textArea.addEventListener("focusout", (e)=>{
-                        li.innerText=e.target.value;
-                        li.style.display="list-item";
-                        e.target.style.display="none";
-                         
-                        
-                        //Actualizar localStorage y la nota
-                        let id=e.target.parentNode.parentNode.id;
-                        let liS = Array.from(e.target.parentNode.getElementsByTagName("li"));
-                        let textoDescripcion="";
-                        liS.forEach((li)=>{
-                            textoDescripcion+=li.innerText+";";
-                        })
-                        this.arrayNotas.forEach((nota)=>{
-                            if(nota.id==id)
-                                nota.descripcion=textoDescripcion;
-                        })
-                        this.actualizarLocalStorage();
-                    });
-                })
-            })
-        }
     }
 
     moverNotas(){
@@ -350,10 +337,10 @@ export class Controlador{
         })
     }
 }
+var imagenEnMovimiento;
 function target(e=window.event){
     var e=e;
     e.target.parentNode.arrastrando = !e.target.parentNode.arrastrando;    
     e.target.parentNode.style.position="absolute";
-    window.imagenEnMovimiento = e.target.parentNode;
-
+    imagenEnMovimiento = e.target.parentNode;
  }

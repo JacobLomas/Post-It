@@ -2,10 +2,10 @@ import{Controlador} from "./Nota.js";
 var controlador=new Controlador();
 window.onload=function(){
     document.getElementById("nuevaNota").addEventListener("click", ()=>{
-        controlador.nuevaNota("normal", "Doble click me", "Doble click me");
+        controlador.nuevaNota("normal", "Click me", "Click me");
     })
     document.getElementById("nuevoToDo").addEventListener("click", ()=>{
-        controlador.nuevaNota("toDoList","Doble click me");
+        controlador.nuevaNota("toDoList","Click me (List)");
     });
     setInterval(haceCuanto, 1000);   
 }
